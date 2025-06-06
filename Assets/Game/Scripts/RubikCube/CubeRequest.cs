@@ -11,6 +11,11 @@ public enum CubeRotationRequest
     None, TopCW, TopCCW, BottomCW, BottomCCW, LeftCW, LeftCCW, RightCW, RightCCW, FrontCW, FrontCCW, BackCW, BackCCW
 }
 
+public enum CubeActionRequest
+{
+    None, Shuffle, Solve
+}
+
 public class CubeRequest : MonoBehaviour
 {
     public Queue<object> requests = new();
