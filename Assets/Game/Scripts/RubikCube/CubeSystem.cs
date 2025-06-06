@@ -46,6 +46,16 @@ public class CubeSystem : MonoBehaviour
         cubeState = newCubeState;
     }
 
+    private bool IsItSolved ()
+    {
+        foreach (var cubeletData in cubeState.Values)
+        {
+            if (!cubeletData.IsInSolvedState())
+                return false;
+        }
+        return true;
+    }
+
     private void Update()
     {
         foreach (var request in requests)
@@ -54,80 +64,114 @@ public class CubeSystem : MonoBehaviour
             {
                 var requestType = request.requests.Dequeue();
                 
-                ProcessRequest(requestType);
+                if(requestType is CubeFaceRequest)
+                    JoinFaces((CubeFaceRequest) requestType);
+                else if(requestType is CubeRotationRequest)
+                    RotateFaces((CubeRotationRequest) requestType);
             }
         }
     }
 
-    private void ProcessRequest(CubeRequestType requestType)
+    private void RotateFaces(CubeRotationRequest requestType)
     {
-        if(requestType == CubeRequestType.PickedTop )
+        switch(requestType)
+        {
+            case CubeRotationRequest.TopCW:
+                topFaceParent.Rotate(Vector3.up, 90);
+                break;
+            case CubeRotationRequest.TopCCW:
+                topFaceParent.Rotate(Vector3.up, -90);
+                break;
+            case CubeRotationRequest.BottomCW:
+                bottomFaceParent.Rotate(Vector3.up, 90);
+                break;
+            case CubeRotationRequest.BottomCCW:
+                bottomFaceParent.Rotate(Vector3.up, -90);
+                break;
+            case CubeRotationRequest.LeftCW:
+                leftFaceParent.Rotate(Vector3.right, -90);
+                break;
+            case CubeRotationRequest.LeftCCW:
+                leftFaceParent.Rotate(Vector3.right, 90);
+                break;
+            case CubeRotationRequest.RightCW:
+                rightFaceParent.Rotate(Vector3.right, -90);
+                break;
+            case CubeRotationRequest.RightCCW:
+                rightFaceParent.Rotate(Vector3.right, 90);
+                break;
+            case CubeRotationRequest.FrontCW:
+                frontFaceParent.Rotate(Vector3.forward, 90);
+                break;
+            case CubeRotationRequest.FrontCCW:
+                frontFaceParent.Rotate(Vector3.forward, -90);
+                break;
+            case CubeRotationRequest.BackCW:
+                backFaceParent.Rotate(Vector3.back, 90);
+                break;
+            case CubeRotationRequest.BackCCW:
+                backFaceParent.Rotate(Vector3.back, -90);
+                break;
+        }
+    }
+
+    private void JoinFaces(CubeFaceRequest requestType)
+    {
+        if(requestType == CubeFaceRequest.PickedTop )
         {
             // Join all cubelets in the top face
             foreach (var cubelet in cubelets)
             {
                 if(cubelet.localPosition.y > 0) 
-                {
                     cubelet.SetParent(topFaceParent);
-                }
             }
         }
-        else if(requestType == CubeRequestType.PickedBottom)
+        else if(requestType == CubeFaceRequest.PickedBottom)
         {
             // Join all cubelets in the bottom face
             foreach (var cubelet in cubelets)
             {
                 if(cubelet.localPosition.y < 0) 
-                {
                     cubelet.SetParent(bottomFaceParent);
-                }
             }   
         }
-        else if(requestType == CubeRequestType.PickedLeft)
+        else if(requestType == CubeFaceRequest.PickedLeft)
         {
             // Join all cubelets in the left face
             foreach (var cubelet in cubelets)
             {
                 if(cubelet.localPosition.x > 0) 
-                {
                     cubelet.SetParent(leftFaceParent);
-                }
             }
         }
-        else if(requestType == CubeRequestType.PickedRight)
+        else if(requestType == CubeFaceRequest.PickedRight)
         {
             // Join all cubelets in the right face
             foreach (var cubelet in cubelets)
             {
                 if(cubelet.localPosition.x < 0) 
-                {
                     cubelet.SetParent(rightFaceParent);
-                }
             }
         }
-        else if(requestType == CubeRequestType.PickedFront)
+        else if(requestType == CubeFaceRequest.PickedFront)
         {
             // Join all cubelets in the front face
             foreach (var cubelet in cubelets)
             {
                 if(cubelet.localPosition.z > 0) 
-                {
                     cubelet.SetParent(frontFaceParent);
-                }
             }
         }
-        else if(requestType == CubeRequestType.PickedBack)
+        else if(requestType == CubeFaceRequest.PickedBack)
         {
             // Join all cubelets in the back face           
             foreach (var cubelet in cubelets)
             {
                 if(cubelet.localPosition.z < 0) 
-                {
                     cubelet.SetParent(backFaceParent);
-                }
             }
         }
-        else if(requestType == CubeRequestType.Released)
+        else if(requestType == CubeFaceRequest.Released)
         {
             foreach (var cubelet in cubelets)
             {
@@ -139,6 +183,8 @@ public class CubeSystem : MonoBehaviour
             }
 
             UpdateCubeState();
+
+            // Debug.Log("Is it solved? " + IsItSolved());
         }
     }
 }

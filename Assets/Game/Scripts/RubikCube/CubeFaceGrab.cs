@@ -4,7 +4,7 @@ using UnityEngine;
 public class CubeFaceGrab : MonoBehaviour
 {
     [Header("---- Settings ----")]
-    [SerializeField] private CubeRequestType face;
+    [SerializeField] private CubeFaceRequest face;
     
     [Header("---- References ----")]
     [SerializeField] private CubeRequest request;
@@ -27,7 +27,7 @@ public class CubeFaceGrab : MonoBehaviour
     private void OnMouseUp()
     {
         isGrabbed = false;
-        request.requests.Enqueue(CubeRequestType.Released);
+        request.requests.Enqueue(CubeFaceRequest.Released);
     }
 
     private void Update ()
@@ -37,11 +37,11 @@ public class CubeFaceGrab : MonoBehaviour
     
         if(Input.GetKeyDown(KeyCode.A))
         {
-            transform.Rotate(rotationAxis * 30);
+            transform.Rotate(rotationAxis * 90);
         }
         else if(Input.GetKeyDown(KeyCode.D))
         {
-            transform.Rotate(rotationAxis * -30);
+            transform.Rotate(rotationAxis * -90);
         }
     }
 }

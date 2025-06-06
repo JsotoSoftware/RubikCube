@@ -1,21 +1,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum CubeRequestType
+public enum CubeFaceRequest
 {
-    None,
-    PickedTop,
-    PickedBottom,
-    PickedLeft,
-    PickedRight,
-    PickedFront,
-    PickedBack,
-    Released,
+    None, PickedTop, PickedBottom, PickedLeft, PickedRight, PickedFront, PickedBack, Released
+}
+
+public enum CubeRotationRequest
+{
+    None, TopCW, TopCCW, BottomCW, BottomCCW, LeftCW, LeftCCW, RightCW, RightCCW, FrontCW, FrontCCW, BackCW, BackCCW
 }
 
 public class CubeRequest : MonoBehaviour
 {
-    public Queue<CubeRequestType> requests = new();
+    public Queue<object> requests = new();
 
     private void OnEnable()
     {
