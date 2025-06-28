@@ -19,45 +19,8 @@ public class CubeSystem : MonoBehaviour
 
 
     [Header("---- Data ----")]
-    private Dictionary<Vector3Int, CubeletData> cubeState = new();
-
     public static List<CubeRequest> requests = new();
     private int maxShuffleCount = 10;
-
-
-    private void Start()
-    {
-        cubeState = new Dictionary<Vector3Int, CubeletData>();
-        foreach (Transform cubelet in cubelets)
-        {
-            var position = cubelet.position.RoundVector3Int();
-            cubeState.Add(position, new CubeletData(position, cubelet));
-        }
-    }
-
-    private void UpdateCubeState()
-    {
-        var newCubeState = new Dictionary<Vector3Int, CubeletData>();
-        foreach (var cubeletData in cubeState.Values)
-        {
-            Vector3Int newPos = cubeletData.cubelet.localPosition.RoundVector3Int();
-            cubeletData.position = newPos;
-            cubeletData.UpdateFaceDirection();
-            newCubeState.Add(newPos, cubeletData);
-        }
-        
-        cubeState = newCubeState;
-    }
-
-    private bool IsItSolved ()
-    {
-        foreach (var cubeletData in cubeState.Values)
-        {
-            if (!cubeletData.IsInSolvedState())
-                return false;
-        }
-        return true;
-    }
 
     private void Update()
     {
@@ -81,27 +44,21 @@ public class CubeSystem : MonoBehaviour
     {
         if(requestType == CubeActionRequest.Shuffle)
         {
-            // Shuffle the cube
             ShuffleCube(UnityEngine.Random.Range(1, maxShuffleCount + 1));
         }
         else if(requestType == CubeActionRequest.Solve)
         {
-            // Solve the cube
-            Debug.Log("Solving cube: " + GetKociembaString());
+
         }
     }
 
     private void ShuffleCube(int shuffleTimes)
     {
-        // Make a random list of moves
-        Debug.Log($"Shuffling cube {shuffleTimes} times");
         string[] moves = new string[shuffleTimes];
         for(int i = 0; i < shuffleTimes; i++)
         {
-            // Randomly choose a rotation
             bool isCounterClockwise = UnityEngine.Random.Range(0, 2) == 1;
 
-            // Randomly choose a face
             moves[i] = UnityEngine.Random.Range(0, 6) switch
             {
                 0 => isCounterClockwise ? "U'" : "U",
@@ -119,22 +76,19 @@ public class CubeSystem : MonoBehaviour
 
         foreach(var move in moves)
         {
-            Debug.Log($"Sending move: {move}");
-
             string currentFace = move[0].ToString();
             
-            // If we're changing faces and it's not the first move, release the current face
             if(!isFirstMove && currentFace != lastFace)
             {
                 JoinFaces(CubeFaceRequest.Released);
-                SendFacePickRequest(currentFace);
+                SetFacePick(currentFace);
             }
             else if(isFirstMove)
             {
-                SendFacePickRequest(currentFace);
+                SetFacePick(currentFace);
             }
 
-            SendRotationRequest(move);
+            SetRotation(move);
             
             lastFace = currentFace;
             isFirstMove = false;
@@ -143,7 +97,7 @@ public class CubeSystem : MonoBehaviour
         JoinFaces(CubeFaceRequest.Released);
     }
 
-    private void SendFacePickRequest(string face)
+    private void SetFacePick(string face)
     {
         switch(face)
         {
@@ -168,7 +122,7 @@ public class CubeSystem : MonoBehaviour
         }
     }
 
-    private void SendRotationRequest(string move)
+    private void SetRotation(string move)
     {
         bool isCounterClockwise = move.Contains("'");
         
@@ -197,44 +151,82 @@ public class CubeSystem : MonoBehaviour
 
     private void RotateFaces(CubeRotationRequest requestType)
     {
+        Transform faceParent = null;
+        Vector3 axis = Vector3.zero;
+        float angle = 0f;
+
         switch(requestType)
         {
             case CubeRotationRequest.TopCW:
-                topFaceParent.Rotate(Vector3.up, 90);
+                faceParent = topFaceParent;
+                axis = Vector3.up;
+                angle = 90f;
                 break;
             case CubeRotationRequest.TopCCW:
-                topFaceParent.Rotate(Vector3.up, -90);
+                faceParent = topFaceParent;
+                axis = Vector3.up;
+                angle = -90f;
                 break;
             case CubeRotationRequest.BottomCW:
-                bottomFaceParent.Rotate(Vector3.up, 90);
+                faceParent = bottomFaceParent;
+                axis = Vector3.up;
+                angle = -90f;
                 break;
             case CubeRotationRequest.BottomCCW:
-                bottomFaceParent.Rotate(Vector3.up, -90);
+                faceParent = bottomFaceParent;
+                axis = Vector3.up;
+                angle = 90f;
                 break;
             case CubeRotationRequest.LeftCW:
-                leftFaceParent.Rotate(Vector3.right, -90);
+                faceParent = leftFaceParent;
+                axis = Vector3.right;
+                angle = -90f;       
                 break;
             case CubeRotationRequest.LeftCCW:
-                leftFaceParent.Rotate(Vector3.right, 90);
+                faceParent = leftFaceParent;
+                axis = Vector3.right;
+                angle = 90f;
                 break;
             case CubeRotationRequest.RightCW:
-                rightFaceParent.Rotate(Vector3.right, -90);
+                faceParent = rightFaceParent;
+                axis = Vector3.right;
+                angle = 90f;
                 break;
             case CubeRotationRequest.RightCCW:
-                rightFaceParent.Rotate(Vector3.right, 90);
+                faceParent = rightFaceParent;
+                axis = Vector3.right;
+                angle = -90f;
                 break;
             case CubeRotationRequest.FrontCW:
-                frontFaceParent.Rotate(Vector3.forward, 90);
+                faceParent = frontFaceParent;
+                axis = Vector3.forward;
+                angle = -90f;
                 break;
             case CubeRotationRequest.FrontCCW:
-                frontFaceParent.Rotate(Vector3.forward, -90);
+                faceParent = frontFaceParent;
+                axis = Vector3.forward;
+                angle = 90f;   
                 break;
             case CubeRotationRequest.BackCW:
-                backFaceParent.Rotate(Vector3.back, 90);
+                faceParent = backFaceParent;
+                axis = Vector3.back;
+                angle = 90f;
                 break;
             case CubeRotationRequest.BackCCW:
-                backFaceParent.Rotate(Vector3.back, -90);
+                faceParent = backFaceParent;
+                axis = Vector3.back;
+                angle = -90f;
                 break;
+        }
+
+        if (faceParent != null)
+        {
+            faceParent.Rotate(axis, angle);
+            faceParent.RoundLocalPosition();
+            foreach(Transform cubelet in faceParent)
+            {
+                cubelet.RoundLocalPosition();
+            }
         }
     }
 
@@ -242,28 +234,25 @@ public class CubeSystem : MonoBehaviour
     {
         if(requestType == CubeFaceRequest.PickedTop )
         {
-            // Join all cubelets in the top face
             foreach (var cubelet in cubelets)
             {
-                if(cubelet.localPosition.y > 0) 
+                if(Mathf.Round(cubelet.localPosition.y) > 0) 
                     cubelet.SetParent(topFaceParent);
             }
         }
         else if(requestType == CubeFaceRequest.PickedBottom)
         {
-            // Join all cubelets in the bottom face
             foreach (var cubelet in cubelets)
             {
-                if(cubelet.localPosition.y < 0) 
+                if(Mathf.Round(cubelet.localPosition.y) < 0) 
                     cubelet.SetParent(bottomFaceParent);
             }   
         }
         else if(requestType == CubeFaceRequest.PickedLeft)
         {
-            // Join all cubelets in the left face
             foreach (var cubelet in cubelets)
             {
-                if(cubelet.localPosition.x > 0) 
+                if(Mathf.Round(cubelet.localPosition.x) > 0) 
                     cubelet.SetParent(leftFaceParent);
             }
         }
@@ -272,7 +261,7 @@ public class CubeSystem : MonoBehaviour
             // Join all cubelets in the right face
             foreach (var cubelet in cubelets)
             {
-                if(cubelet.localPosition.x < 0) 
+                if(Mathf.Round(cubelet.localPosition.x) < 0) 
                     cubelet.SetParent(rightFaceParent);
             }
         }
@@ -281,7 +270,7 @@ public class CubeSystem : MonoBehaviour
             // Join all cubelets in the front face
             foreach (var cubelet in cubelets)
             {
-                if(cubelet.localPosition.z > 0) 
+                if(Mathf.Round(cubelet.localPosition.z) < 0) 
                     cubelet.SetParent(frontFaceParent);
             }
         }
@@ -290,7 +279,7 @@ public class CubeSystem : MonoBehaviour
             // Join all cubelets in the back face           
             foreach (var cubelet in cubelets)
             {
-                if(cubelet.localPosition.z < 0) 
+                if(Mathf.Round(cubelet.localPosition.z) > 0) 
                     cubelet.SetParent(backFaceParent);
             }
         }
@@ -300,103 +289,11 @@ public class CubeSystem : MonoBehaviour
             {
                 if(cubelet.parent != transform) 
                 {
-                    cubelet.SetParent(transform);
-                    cubelet.localPosition = cubelet.localPosition.Round();
+                    Quaternion worldRot = cubelet.rotation;
+                    cubelet.SetParent(transform, true);
+                    cubelet.rotation = worldRot;
                 }
             }
-
-            UpdateCubeState();
-
-            // Debug.Log("Is it solved? " + IsItSolved());
         }
-    }
-
-    public string GetKociembaString()
-    {
-        char[] kociembaString = new char[54];
-        
-        // Helper function to get color at a specific position
-        CubeColor GetColorAtPosition(Vector3 position)
-        {
-            // Find the cubelet at this position
-            foreach (var cubeletData in cubeState.Values)
-            {
-                if (cubeletData.position == position.RoundVector3Int())
-                {
-                    // Get the color based on the face direction
-                    return cubeletData.GetFaceColor();
-                }
-            }
-            return CubeColor.U; // Default fallback
-        }
-
-        // Map positions to Kociemba facelet indices
-        // U face (y = 1)
-        kociembaString[0] = GetColorAtPosition(new Vector3(-1, 1, 1)).ToString()[0];  // U1
-        kociembaString[1] = GetColorAtPosition(new Vector3(0, 1, 1)).ToString()[0];   // U2
-        kociembaString[2] = GetColorAtPosition(new Vector3(1, 1, 1)).ToString()[0];   // U3
-        kociembaString[3] = GetColorAtPosition(new Vector3(-1, 1, 0)).ToString()[0];  // U4
-        kociembaString[4] = GetColorAtPosition(new Vector3(0, 1, 0)).ToString()[0];   // U5
-        kociembaString[5] = GetColorAtPosition(new Vector3(1, 1, 0)).ToString()[0];   // U6
-        kociembaString[6] = GetColorAtPosition(new Vector3(-1, 1, -1)).ToString()[0]; // U7
-        kociembaString[7] = GetColorAtPosition(new Vector3(0, 1, -1)).ToString()[0];  // U8
-        kociembaString[8] = GetColorAtPosition(new Vector3(1, 1, -1)).ToString()[0];  // U9
-
-        // R face (x = 1)
-        kociembaString[9] = GetColorAtPosition(new Vector3(1, 1, 1)).ToString()[0];   // R1
-        kociembaString[10] = GetColorAtPosition(new Vector3(1, 1, 0)).ToString()[0];  // R2
-        kociembaString[11] = GetColorAtPosition(new Vector3(1, 1, -1)).ToString()[0]; // R3
-        kociembaString[12] = GetColorAtPosition(new Vector3(1, 0, 1)).ToString()[0];  // R4
-        kociembaString[13] = GetColorAtPosition(new Vector3(1, 0, 0)).ToString()[0];  // R5
-        kociembaString[14] = GetColorAtPosition(new Vector3(1, 0, -1)).ToString()[0]; // R6
-        kociembaString[15] = GetColorAtPosition(new Vector3(1, -1, 1)).ToString()[0]; // R7
-        kociembaString[16] = GetColorAtPosition(new Vector3(1, -1, 0)).ToString()[0]; // R8
-        kociembaString[17] = GetColorAtPosition(new Vector3(1, -1, -1)).ToString()[0];// R9
-
-        // F face (z = 1)
-        kociembaString[18] = GetColorAtPosition(new Vector3(1, 1, 1)).ToString()[0];  // F1
-        kociembaString[19] = GetColorAtPosition(new Vector3(0, 1, 1)).ToString()[0];  // F2
-        kociembaString[20] = GetColorAtPosition(new Vector3(-1, 1, 1)).ToString()[0]; // F3
-        kociembaString[21] = GetColorAtPosition(new Vector3(1, 0, 1)).ToString()[0];  // F4
-        kociembaString[22] = GetColorAtPosition(new Vector3(0, 0, 1)).ToString()[0];  // F5
-        kociembaString[23] = GetColorAtPosition(new Vector3(-1, 0, 1)).ToString()[0]; // F6
-        kociembaString[24] = GetColorAtPosition(new Vector3(1, -1, 1)).ToString()[0]; // F7
-        kociembaString[25] = GetColorAtPosition(new Vector3(0, -1, 1)).ToString()[0]; // F8
-        kociembaString[26] = GetColorAtPosition(new Vector3(-1, -1, 1)).ToString()[0];// F9
-
-        // D face (y = -1)
-        kociembaString[27] = GetColorAtPosition(new Vector3(-1, -1, 1)).ToString()[0];// D1
-        kociembaString[28] = GetColorAtPosition(new Vector3(0, -1, 1)).ToString()[0]; // D2
-        kociembaString[29] = GetColorAtPosition(new Vector3(1, -1, 1)).ToString()[0]; // D3
-        kociembaString[30] = GetColorAtPosition(new Vector3(-1, -1, 0)).ToString()[0];// D4
-        kociembaString[31] = GetColorAtPosition(new Vector3(0, -1, 0)).ToString()[0]; // D5
-        kociembaString[32] = GetColorAtPosition(new Vector3(1, -1, 0)).ToString()[0]; // D6
-        kociembaString[33] = GetColorAtPosition(new Vector3(-1, -1, -1)).ToString()[0];// D7
-        kociembaString[34] = GetColorAtPosition(new Vector3(0, -1, -1)).ToString()[0];// D8
-        kociembaString[35] = GetColorAtPosition(new Vector3(1, -1, -1)).ToString()[0];// D9
-
-        // L face (x = -1)
-        kociembaString[36] = GetColorAtPosition(new Vector3(-1, 1, -1)).ToString()[0];// L1
-        kociembaString[37] = GetColorAtPosition(new Vector3(-1, 1, 0)).ToString()[0]; // L2
-        kociembaString[38] = GetColorAtPosition(new Vector3(-1, 1, 1)).ToString()[0]; // L3
-        kociembaString[39] = GetColorAtPosition(new Vector3(-1, 0, -1)).ToString()[0];// L4
-        kociembaString[40] = GetColorAtPosition(new Vector3(-1, 0, 0)).ToString()[0]; // L5
-        kociembaString[41] = GetColorAtPosition(new Vector3(-1, 0, 1)).ToString()[0]; // L6
-        kociembaString[42] = GetColorAtPosition(new Vector3(-1, -1, -1)).ToString()[0];// L7
-        kociembaString[43] = GetColorAtPosition(new Vector3(-1, -1, 0)).ToString()[0];// L8
-        kociembaString[44] = GetColorAtPosition(new Vector3(-1, -1, 1)).ToString()[0];// L9
-
-        // B face (z = -1)
-        kociembaString[45] = GetColorAtPosition(new Vector3(-1, 1, -1)).ToString()[0];// B1
-        kociembaString[46] = GetColorAtPosition(new Vector3(0, 1, -1)).ToString()[0]; // B2
-        kociembaString[47] = GetColorAtPosition(new Vector3(1, 1, -1)).ToString()[0]; // B3
-        kociembaString[48] = GetColorAtPosition(new Vector3(-1, 0, -1)).ToString()[0];// B4
-        kociembaString[49] = GetColorAtPosition(new Vector3(0, 0, -1)).ToString()[0]; // B5
-        kociembaString[50] = GetColorAtPosition(new Vector3(1, 0, -1)).ToString()[0]; // B6
-        kociembaString[51] = GetColorAtPosition(new Vector3(-1, -1, -1)).ToString()[0];// B7
-        kociembaString[52] = GetColorAtPosition(new Vector3(0, -1, -1)).ToString()[0];// B8
-        kociembaString[53] = GetColorAtPosition(new Vector3(1, -1, -1)).ToString()[0];// B9
-
-        return new string(kociembaString);
     }
 }

@@ -32,16 +32,6 @@ public class CubeFaceGrab : MonoBehaviour
 
     private void Update ()
     {
-        if(!isGrabbed)
-            return;
-    
-        if(Input.GetKeyDown(KeyCode.A))
-        {
-            transform.Rotate(rotationAxis * 90);
-        }
-        else if(Input.GetKeyDown(KeyCode.D))
-        {
-            transform.Rotate(rotationAxis * -90);
-        }
+        
     }
 }

@@ -32,4 +32,18 @@ public class EditorUtilities : MonoBehaviour
         
         Debug.Log("Cube pieces renamed successfully!");
     }
+
+    [MenuItem("Tools/Change Cubelet Positions")]
+    public static void ChangeCubeletPositions()
+    {
+        // Get all selected objects
+        GameObject selectedObject = Selection.activeGameObject;
+        if (selectedObject != null)
+        {
+            foreach (Transform child in selectedObject.transform)
+            {
+                child.position = new Vector3(child.position.x / 2, child.position.y / 2, child.position.z / 2);
+            }
+        }
+    }
 }
