@@ -2,9 +2,6 @@ using UnityEngine;
 
 public class TestFlow : MonoBehaviour
 {
-    [Header("---- Settings ----")]
-    [SerializeField] private int maxShuffleCount = 10;
-
     [Header("---- References ----")]
     [SerializeField] private CubeRequest cubeRequest;
 

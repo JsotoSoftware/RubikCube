@@ -11,8 +11,7 @@ public class CubeFaceGrab : MonoBehaviour
     
     [Header("---- Debug ----")]
     [SerializeField] private bool isGrabbed = false;
-    [SerializeField] private Vector3 rotationAxis;
-
+    
     private void Reset()
     {
         request = GetComponent<CubeRequest>();
@@ -32,6 +31,6 @@ public class CubeFaceGrab : MonoBehaviour
 
     private void Update ()
     {
-        
+
     }
 }

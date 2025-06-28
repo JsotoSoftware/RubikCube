@@ -5,8 +5,6 @@ using Kociemba;
 
 public class CubeSystem : MonoBehaviour
 {
-    [Header("---- Settings ----")]
-    [SerializeField] private float rotationSpeed = 10f;
     
     [Header("---- References ----")]
     [SerializeField] private Transform[] cubelets;
