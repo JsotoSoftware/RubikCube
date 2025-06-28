@@ -250,7 +250,7 @@ public class CubeSystem : MonoBehaviour
         {
             foreach (var cubelet in cubelets)
             {
-                if(Mathf.Round(cubelet.localPosition.x) > 0) 
+                if(Mathf.Round(cubelet.localPosition.x) < 0) 
                     cubelet.SetParent(leftFaceParent);
             }
         }
@@ -259,7 +259,7 @@ public class CubeSystem : MonoBehaviour
             // Join all cubelets in the right face
             foreach (var cubelet in cubelets)
             {
-                if(Mathf.Round(cubelet.localPosition.x) < 0) 
+                if(Mathf.Round(cubelet.localPosition.x) > 0) 
                     cubelet.SetParent(rightFaceParent);
             }
         }

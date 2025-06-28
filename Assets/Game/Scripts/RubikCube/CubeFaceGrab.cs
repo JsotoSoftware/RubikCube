@@ -4,33 +4,26 @@ using UnityEngine;
 public class CubeFaceGrab : MonoBehaviour
 {
     [Header("---- Settings ----")]
+    public Vector3 rotationAxis;
     [SerializeField] private CubeFaceRequest face;
     
     [Header("---- References ----")]
     [SerializeField] private CubeRequest request;
-    
-    [Header("---- Debug ----")]
-    [SerializeField] private bool isGrabbed = false;
     
     private void Reset()
     {
         request = GetComponent<CubeRequest>();
     } 
 
-    private void OnMouseDown()
+    public void OnPress()
     {
-        isGrabbed = true;
+        Debug.Log("OnMouseDown");
         request.requests.Enqueue(face);
     }
 
-    private void OnMouseUp()
+    public void OnRelease()
     {
-        isGrabbed = false;
+        Debug.Log("OnMouseUp");
         request.requests.Enqueue(CubeFaceRequest.Released);
-    }
-
-    private void Update ()
-    {
-
     }
 }
